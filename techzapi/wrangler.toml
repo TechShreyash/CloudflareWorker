@@ -1,0 +1,10 @@
+name = "api"
+main = "src/index.js"
+compatibility_date = "2023-10-13"
+type = "javascript"
+workers_dev = true
+node_compat = true
+
+kv_namespaces = [
+  { binding = "TODO", id = "794a48b8de174a808930ff11dd41fe5e" }
+]
