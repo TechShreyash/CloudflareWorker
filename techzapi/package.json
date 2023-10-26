@@ -10,6 +10,8 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "install": "^0.13.0",
+    "npm": "^10.2.1"
   }
 }

@@ -1,0 +1,4 @@
+to deploy
+
+npm install --save npm install cheerio
+wrangler publish

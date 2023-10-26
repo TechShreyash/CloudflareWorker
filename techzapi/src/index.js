@@ -1,6 +1,8 @@
+import cheerio from "cheerio";
+
 async function scrapGogoEpisodes(animeid) {
     let response = await fetch(`https://gogoanimehd.io/category/${animeid}`);
-    const cheerio = require("cheerio");
+    // const cheerio = require("cheerio");
     let html = await response.text();
     let body = cheerio.load(html);
     const id = body("input#movie_id").attr("value");
@@ -23,7 +25,7 @@ async function GogoDLScrapper(animeid, cookie) {
             },
         });
         const html = await response.text();
-        const cheerio = require("cheerio");
+        // const cheerio = require("cheerio");
         const body = cheerio.load(html);
         let data = {};
         const links = body("div.cf-download").find("a");
