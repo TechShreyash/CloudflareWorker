@@ -1,10 +1,17 @@
 async function scrapGogoEpisodes(animeid) {
-    const response = await fetch(`https://gogoanimehd.io/category/${animeid}`);
-    const html = await response.text();
+    let response = await fetch(`https://gogoanimehd.io/category/${animeid}`);
     const cheerio = require("cheerio");
-    const body = cheerio.load(html);
-    const ul = body("ul#episode_page").find("a").text().split("-")[1];
-    return ul;
+    let html = await response.text();
+    let body = cheerio.load(html);
+    const id = body("input#movie_id").attr("value");
+
+    response = await fetch(
+        `https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=990000000000000000000&id=${id}`
+    );
+    html = await response.text();
+    body = cheerio.load(html);
+    const episodes = body("div.name").length;
+    return episodes;
 }
 
 async function GogoDLScrapper(animeid, cookie) {
