@@ -99,7 +99,7 @@ async function getPopularAnime(page) {
         };
         popularAnime.push(anime);
     });
-    return popularAnime;
+    return popularAnime.slice(0,10);
 }
 
 async function getEpisode(id) {
