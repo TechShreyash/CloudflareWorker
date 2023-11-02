@@ -54,7 +54,7 @@ export default {
                     });
                 }
             }
-            const anilistTrending = await getAnilistTrending();
+            const anilistTrending = (await getAnilistTrending())["results"];
             const gogoPopular = await getPopularAnime();
             const data = { anilistTrending, gogoPopular };
             HOME_CACHE["data"] = data;
