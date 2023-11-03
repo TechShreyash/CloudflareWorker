@@ -18,6 +18,7 @@ const CACHE = {};
 const HOME_CACHE = {};
 const ANIME_CACHE = {};
 const SEARCH_CACHE = {};
+const REC_CACHE = {};
 
 export default {
     async fetch(request, env, ctx) {
@@ -75,7 +76,9 @@ export default {
                 const t1 = Math.floor(Date.now() / 1000);
                 const t2 = ANIME_CACHE[`time_${anime}`];
                 if (t1 - t2 < 60 * 60) {
-                    const json = JSON.stringify({ results: HOME_CACHE[anime] });
+                    const json = JSON.stringify({
+                        results: ANIME_CACHE[anime],
+                    });
                     return new Response(json, {
                         headers: { "Access-Control-Allow-Origin": "*" },
                     });
@@ -164,10 +167,24 @@ export default {
         } else if (url.includes("/recommendations/")) {
             let anime = url.split("/recommendations/")[1];
 
+            if (REC_CACHE[anime] != null) {
+                const t1 = Math.floor(Date.now() / 1000);
+                const t2 = REC_CACHE[`time_${anime}`];
+                if (t1 - t2 < 60 * 60) {
+                    const json = JSON.stringify({
+                        results: REC_CACHE[anime],
+                    });
+                    return new Response(json, {
+                        headers: { "Access-Control-Allow-Origin": "*" },
+                    });
+                }
+            }
+
             const search = await getAnilistSearch(anime);
             anime = search["results"][0].id;
             let data = await getAnilistAnime(anime);
             data = data["recommendations"];
+            REC_CACHE[anime] = data;
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
