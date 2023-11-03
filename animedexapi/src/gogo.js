@@ -37,7 +37,7 @@ async function getAnime(id) {
     let html = await response.text();
     let $ = cheerio.load(html);
     let animeData = {
-        name: $("div.anime_info_body_bg h1").text() || null,
+        name: $("div.anime_info_body_bg h1").text(),
         image: $("div.anime_info_body_bg img").attr("src"),
         episodes: $("ul#episode_page li a.active").attr("ep_end"),
         id: id,
@@ -99,7 +99,7 @@ async function getPopularAnime(page) {
         };
         popularAnime.push(anime);
     });
-    return popularAnime.slice(0,10);
+    return popularAnime.slice(0, 10);
 }
 
 async function getEpisode(id) {

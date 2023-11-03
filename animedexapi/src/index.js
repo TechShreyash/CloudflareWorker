@@ -8,7 +8,11 @@ import {
     getGogoAuthKey,
 } from "./gogo";
 
-import { getAnilistTrending } from "./anilist";
+import {
+    getAnilistTrending,
+    getAnilistSearch,
+    getAnilistAnime,
+} from "./anilist";
 
 const CACHE = {};
 const HOME_CACHE = {};
@@ -65,7 +69,7 @@ export default {
                 headers: { "Access-Control-Allow-Origin": "*" },
             });
         } else if (url.includes("/anime/")) {
-            const id = url.split("/anime/")[1];
+            let anime = url.split("/anime/")[1];
 
             if (ANIME_CACHE[anime] != null) {
                 const t1 = Math.floor(Date.now() / 1000);
@@ -77,8 +81,33 @@ export default {
                     });
                 }
             }
+            let data;
+            try {
+                // try to get by id on gogo
+                data = await getAnime(anime);
+                if (data.name == "") {
+                    throw new Error("Not found");
+                }
+                data.source = "gogoanime";
+            } catch (err) {
+                try {
+                    // try to get by search on gogo
+                    const search = await getSearch(anime);
+                    anime = search[0].id;
+                    data = await getAnime(anime);
+                    data.source = "gogoanime";
+                } catch (err) {
+                    // try to get by search on anilist
+                    const search = await getAnilistSearch(anime);
+                    anime = search["results"][0].id;
+                    data = await getAnilistAnime(anime);
+                    data.source = "anilist";
+                }
+            }
 
-            const data = await getAnime(id);
+            if (data == {}) {
+                throw new Error("Not found");
+            }
             ANIME_CACHE[anime] = data;
             ANIME_CACHE[`time_${anime}`] = Math.floor(Date.now() / 1000);
             const json = JSON.stringify({ results: data });
@@ -127,6 +156,18 @@ export default {
         } else if (url.includes("/recent/")) {
             const page = url.split("/recent/")[1];
             const data = await getRecentAnime(page);
+            const json = JSON.stringify({ results: data });
+
+            return new Response(json, {
+                headers: { "Access-Control-Allow-Origin": "*" },
+            });
+        } else if (url.includes("/recommendations/")) {
+            let anime = url.split("/recommendations/")[1];
+
+            const search = await getAnilistSearch(anime);
+            anime = search["results"][0].id;
+            let data = await getAnilistAnime(anime);
+            data = data["recommendations"];
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
