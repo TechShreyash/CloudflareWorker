@@ -59,8 +59,19 @@ export default {
                     });
                 }
             }
-            const anilistTrending = (await getAnilistTrending())["results"];
-            const gogoPopular = await getPopularAnime();
+            let anilistTrending = [];
+            let gogoPopular = [];
+            try {
+                anilistTrending = (await getAnilistTrending())["results"];
+            } catch (err) {
+                anilistTrending = [];
+                console.log(err);
+            }
+            try {
+                gogoPopular = await getPopularAnime();
+            } catch (err) {
+                gogoPopular = [];
+            }
             const data = { anilistTrending, gogoPopular };
             HOME_CACHE["data"] = data;
             HOME_CACHE["time"] = Math.floor(Date.now() / 1000);
