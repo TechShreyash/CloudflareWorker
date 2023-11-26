@@ -33,13 +33,12 @@ async function getSearch(name, page = 1) {
 }
 
 async function getAnime(id) {
-    const response = await fetch(BaseURL + "/category/" + id);
+    let response = await fetch(BaseURL + "/category/" + id);
     let html = await response.text();
     let $ = cheerio.load(html);
     let animeData = {
         name: $("div.anime_info_body_bg h1").text(),
         image: $("div.anime_info_body_bg img").attr("src"),
-        episodes: $("ul#episode_page li a.active").attr("ep_end"),
         id: id,
     };
 
@@ -57,6 +56,28 @@ async function getAnime(id) {
                 .replace(`<span>${$x("span").text()}</span>`, "");
         else animeData[keyName] = $x("a").text().trim() || null;
     });
+
+    const animeid = $("input#movie_id").attr("value");
+    response = await fetch(
+        "https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=10000000000000&id=" +
+            animeid
+    );
+    html = await response.text();
+    $ = cheerio.load(html);
+
+    let episodes = [];
+    for (const element of $("ul#episode_related a")) {
+        const name = $(element)
+            .find("div")
+            .text()
+            .trim()
+            .split(" ")[1]
+            .slice(0, -3);
+        const link = $(element).attr("href").trim().slice(1);
+        episodes.push([name, link]);
+    }
+    episodes = episodes.reverse();
+    animeData.episodes = episodes;
 
     return animeData;
 }
