@@ -203,7 +203,19 @@ export default {
             });
         }
 
-        return new Response("Hello worker!", {
+        const text = `Api Is Up... Support : https://telegram.me/TechZBots_Support 
+        
+Routes :
+        
+/home
+/search/{query}
+/anime/{id}
+/episode/{id}
+/download/{id}
+/recent/{page}
+/recommendations/{id}        
+        `;
+        return new Response(text, {
             headers: { "content-type": "text/plain" },
         });
     },
