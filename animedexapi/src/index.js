@@ -14,33 +14,38 @@ import {
     getAnilistAnime,
 } from "./anilist";
 
-const CACHE = {};
-const HOME_CACHE = {};
-const ANIME_CACHE = {};
-const SEARCH_CACHE = {};
-const REC_CACHE = {};
+let CACHE = {};
+let HOME_CACHE = {};
+let ANIME_CACHE = {};
+let SEARCH_CACHE = {};
+let REC_CACHE = {};
+let RECENT_CACHE = {};
 
 export default {
     async fetch(request, env, ctx) {
         const url = request.url;
 
         if (url.includes("/search/")) {
-            const query = url.split("/search/")[1];
-            if (SEARCH_CACHE[query] != null) {
+            const query = url.split("/search/")[1].split("?")[0];
+            const page = url.split("/search/")[1].split("?")[1];
+
+            if (SEARCH_CACHE[query + page.toString()] != null) {
                 const t1 = Math.floor(Date.now() / 1000);
-                const t2 = SEARCH_CACHE[`time_${query}`];
+                const t2 = SEARCH_CACHE[`time_${query + page.toString()}`];
                 if (t1 - t2 < 60 * 60) {
                     const json = JSON.stringify({
-                        results: SEARCH_CACHE[query],
+                        results: SEARCH_CACHE[query + page.toString()],
                     });
                     return new Response(json, {
                         headers: { "Access-Control-Allow-Origin": "*" },
                     });
                 }
             }
-            const data = await getSearch(query);
-            SEARCH_CACHE[query] = data;
-            SEARCH_CACHE[`time_${query}`] = Math.floor(Date.now() / 1000);
+            const data = await getSearch(query, page);
+            SEARCH_CACHE[query + page.toString()] = data;
+            SEARCH_CACHE[`time_${query + page.toString()}`] = Math.floor(
+                Date.now() / 1000
+            );
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
@@ -147,7 +152,7 @@ export default {
                 const currentTimeInSeconds = Math.floor(Date.now() / 1000);
                 const timeDiff = currentTimeInSeconds - timeValue;
 
-                if (timeDiff > 30 * 60) {
+                if (timeDiff > 10 * 60) {
                     cookie = await getGogoAuthKey();
                     CACHE.cookieValue = cookie;
                 } else {
@@ -168,8 +173,25 @@ export default {
             });
         } else if (url.includes("/recent/")) {
             const page = url.split("/recent/")[1];
+
+            if (RECENT_CACHE[page] != null) {
+                const t1 = Math.floor(Date.now() / 1000);
+                const t2 = RECENT_CACHE[`time_${page}`];
+                if (t1 - t2 < 5 * 60) {
+                    const json = JSON.stringify({
+                        results: RECENT_CACHE[page],
+                    });
+                    return new Response(json, {
+                        headers: { "Access-Control-Allow-Origin": "*" },
+                    });
+                }
+            }
+
             const data = await getRecentAnime(page);
             const json = JSON.stringify({ results: data });
+
+            RECENT_CACHE[page] = data;
+            RECENT_CACHE[`time_${page}`] = Math.floor(Date.now() / 1000);
 
             return new Response(json, {
                 headers: { "Access-Control-Allow-Origin": "*" },
