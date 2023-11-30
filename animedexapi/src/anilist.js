@@ -7,7 +7,7 @@ function anilistTrendingQuery(page = 1, perPage = 10, type = "ANIME") {
 }
 
 function anilistMediaDetailQuery(id) {
-    return `query ($id: Int = ${id}) { Media(id: $id) { id title { english native romaji userPreferred } coverImage { extraLarge large color } bannerImage season seasonYear description type format status(version: 2) episodes genres averageScore popularity meanScore recommendations { edges { node { id mediaRecommendation { id idMal title { romaji english native userPreferred } status episodes coverImage { extraLarge large medium color } bannerImage format } } } } } }`;
+    return `query ($id: Int = ${id}) { Media(id: $id) { id title { english native romaji userPreferred } coverImage { extraLarge large color } bannerImage season seasonYear description type format status(version: 2) episodes genres averageScore popularity meanScore recommendations { edges { node { id mediaRecommendation { id meanScore title { romaji english native userPreferred } status episodes coverImage { extraLarge large medium color } bannerImage format } } } } } }`;
 }
 async function getAnilistTrending() {
     const url = "https://graphql.anilist.co";
@@ -69,6 +69,7 @@ async function getAnilistAnime(id) {
     const res = await fetch(url, options);
     let data = await res.json();
     let results = data["data"]["Media"];
+    results["recommendations"] = results["recommendations"]["edges"];
 
     for (let i = 0; i < results["recommendations"].length; i++) {
         const rec = results["recommendations"][i];
