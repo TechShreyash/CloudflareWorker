@@ -7,7 +7,7 @@ function anilistTrendingQuery(page = 1, perPage = 10, type = "ANIME") {
 }
 
 function anilistMediaDetailQuery(id) {
-    return `query ($id: Int = ${id}) { Media(id: $id) { id idMal title { english native romaji } synonyms coverImage { extraLarge large color } startDate { year month day } endDate { year month day } bannerImage season seasonYear description type format status(version: 2) episodes duration genres source averageScore popularity meanScore recommendations { edges { node { id mediaRecommendation { id idMal title { romaji english native userPreferred } status episodes coverImage { extraLarge large medium color } bannerImage format chapters meanScore nextAiringEpisode { episode timeUntilAiring airingAt } } } } } } }`;
+    return `query ($id: Int = ${id}) { Media(id: $id) { id title { english native romaji userPreferred } coverImage { extraLarge large color } bannerImage season seasonYear description type format status(version: 2) episodes genres averageScore popularity meanScore recommendations { edges { node { id mediaRecommendation { id idMal title { romaji english native userPreferred } status episodes coverImage { extraLarge large medium color } bannerImage format } } } } } }`;
 }
 async function getAnilistTrending() {
     const url = "https://graphql.anilist.co";
@@ -68,20 +68,7 @@ async function getAnilistAnime(id) {
     };
     const res = await fetch(url, options);
     let data = await res.json();
-    data = data["data"]["Media"];
-    const results = {
-        id: data["id"],
-        title: data["title"],
-        image: data["image"],
-        cover: data["cover"],
-        description: data["description"],
-        status: data["status"],
-        releaseDate: data["releaseDate"],
-        totalEpisodes: data["totalEpisodes"],
-        genres: data["genres"],
-        type: data["type"],
-        recommendations: data["recommendations"]["edges"],
-    };
+    let results = data["data"]["Media"];
 
     for (let i = 0; i < results["recommendations"].length; i++) {
         const rec = results["recommendations"][i];
