@@ -96,13 +96,12 @@ export default {
                 }
             }
             let data;
-            data = await getAnime(anime);
-            if (data.name == "") {
-                throw new Error("Not found");
-            }
-            data.source = "gogoanime";
             try {
-                // try to get by id on gogo
+                data = await getAnime(anime);
+                if (data.name == "") {
+                    throw new Error("Not found");
+                }
+                data.source = "gogoanime";
             } catch (err) {
                 try {
                     // try to get by search on gogo
