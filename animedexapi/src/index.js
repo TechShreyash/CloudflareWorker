@@ -26,8 +26,19 @@ export default {
         const url = request.url;
 
         if (url.includes("/search/")) {
-            const query = url.split("/search/")[1].split("?")[0];
-            const page = url.split("/search/")[1].split("?")[1];
+            let query, page;
+            try {
+                if (url.includes("?page=")) {
+                    query = url.split("/search/")[1].split("?")[0];
+                    page = url.split("/search/")[1].split("?page=")[1];
+                } else {
+                    query = url.split("/search/")[1];
+                    page = 1;
+                }
+            } catch (err) {
+                query = url.split("/search/")[1];
+                page = 1;
+            }
 
             if (SEARCH_CACHE[query + page.toString()] != null) {
                 const t1 = Math.floor(Date.now() / 1000);
