@@ -54,7 +54,7 @@ async function getAnilistUpcoming(page) {
     const res = await fetch(url, options);
     let data = await res.json();
     data = {
-        results: data["data"]["Page"]["media"],
+        results: data["data"]["Page"]["airingSchedules"],
     };
     return data;
 }
