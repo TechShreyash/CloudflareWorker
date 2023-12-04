@@ -233,6 +233,30 @@ export default {
             return new Response(json, {
                 headers: { "Access-Control-Allow-Origin": "*" },
             });
+        }else if (url.includes("/gogoPopular/")) {
+            let page = url.split("/gogoPopular/")[1];
+
+            if (GP_CACHE[page] != null) {
+                const t1 = Math.floor(Date.now() / 1000);
+                const t2 = GP_CACHE[`time_${page}`];
+                if (t1 - t2 < 10 * 60) {
+                    const json = JSON.stringify({
+                        results: GP_CACHE[page],
+                    });
+                    return new Response(json, {
+                        headers: { "Access-Control-Allow-Origin": "*" },
+                    });
+                }
+            }
+
+            let data = await getPopularAnime(page,20);
+            GP_CACHE[page] = data;
+            
+            const json = JSON.stringify({ results: data });
+
+            return new Response(json, {
+                headers: { "Access-Control-Allow-Origin": "*" },
+            });
         }
 
         const text = `Api Is Up... Support : https://telegram.me/TechZBots_Support 
@@ -245,7 +269,8 @@ Routes :
 /episode/{id}
 /download/{id}
 /recent/{page}
-/recommendations/{id}        
+/recommendations/{id}
+/gogoPopular/{page}
         `;
         return new Response(text, {
             headers: { "content-type": "text/plain" },

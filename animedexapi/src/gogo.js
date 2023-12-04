@@ -102,8 +102,8 @@ async function getRecentAnime(page = 1) {
     return recentAnime;
 }
 
-async function getPopularAnime(page) {
-    const response = await fetch(BaseURL + "/popular.html");
+async function getPopularAnime(page=1,max=10) {
+    const response = await fetch(BaseURL + "/popular.html?page="+page.toString());
     let html = await response.text();
     let $ = cheerio.load(html);
     const popularAnime = [];
@@ -120,7 +120,7 @@ async function getPopularAnime(page) {
         };
         popularAnime.push(anime);
     });
-    return popularAnime.slice(0, 10);
+    return popularAnime.slice(0, max);
 }
 
 async function getEpisode(id) {
