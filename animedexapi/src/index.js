@@ -298,6 +298,7 @@ Routes :
 /recent/{page}
 /recommendations/{id}
 /gogoPopular/{page}
+/upcoming/{page}
         `;
         return new Response(text, {
             headers: { "content-type": "text/plain" },
