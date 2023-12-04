@@ -259,9 +259,7 @@ export default {
             return new Response(json, {
                 headers: { "Access-Control-Allow-Origin": "*" },
             });
-        }
-        
-        else if (url.includes("/upcoming/")) {
+        } else if (url.includes("/upcoming/")) {
             let page = url.split("/upcoming/")[1];
 
             if( AT_CACHE[page] != null) {
