@@ -251,7 +251,7 @@ export default {
                 }
             }
             
-            let data = await getPopularAnime(page,max);
+            let data = await getPopularAnime(page,20);
             GP_CACHE[page] = data;
             
             const json = JSON.stringify({ results: data });
