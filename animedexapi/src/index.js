@@ -249,7 +249,19 @@ export default {
                         headers: { "Access-Control-Allow-Origin": "*" },
                     });
                 }
-            }else if (url.includes("/upcoming/")) {
+            }
+            
+            let data = await getPopularAnime(page,max);
+            GP_CACHE[page] = data;
+            
+            const json = JSON.stringify({ results: data });
+
+            return new Response(json, {
+                headers: { "Access-Control-Allow-Origin": "*" },
+            });
+        }
+        
+        else if (url.includes("/upcoming/")) {
             let page = url.split("/upcoming/")[1];
 
             if( AT_CACHE[page] != null) {
@@ -266,7 +278,7 @@ export default {
             }
 
             let data = await getAnilistUpcoming(page);
-            data=data['results']
+            data=data['results'];
             AT_CACHE[page] = data;
             
             const json = JSON.stringify({ results: data });
