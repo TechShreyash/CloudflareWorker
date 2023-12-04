@@ -9,9 +9,38 @@ function anilistTrendingQuery(page = 1, perPage = 10, type = "ANIME") {
 function anilistMediaDetailQuery(id) {
     return `query ($id: Int = ${id}) { Media(id: $id) { id title { english native romaji userPreferred } coverImage { extraLarge large color } bannerImage season seasonYear description type format status(version: 2) episodes genres averageScore popularity meanScore recommendations { edges { node { id mediaRecommendation { id meanScore title { romaji english native userPreferred } status episodes coverImage { extraLarge large medium color } bannerImage format } } } } } }`;
 }
+
+function  anilistUpcomingQuery(page){
+  const perPage=20
+  const notYetAired=true
+
+  return `query { Page(page: ${page}, perPage: ${perPage}) { pageInfo { total perPage currentPage lastPage hasNextPage } airingSchedules( notYetAired: ${notYetAired}) { airingAt episode media { id description idMal title { romaji english userPreferred native } countryOfOrigin description popularity bannerImage coverImage { extraLarge large medium color } genres averageScore seasonYear format } } } }`;
+
+}
 async function getAnilistTrending() {
     const url = "https://graphql.anilist.co";
     const query = anilistTrendingQuery();
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        },
+        body: JSON.stringify({
+            query: query,
+        }),
+    };
+    const res = await fetch(url, options);
+    let data = await res.json();
+    data = {
+        results: data["data"]["Page"]["media"],
+    };
+    return data;
+}
+
+async function getAnilistUpcoming(page) {
+    const url = "https://graphql.anilist.co";
+    const query = anilistUpcomingQuery(page);
     const options = {
         method: "POST",
         headers: {
@@ -78,4 +107,4 @@ async function getAnilistAnime(id) {
     return results;
 }
 
-export { getAnilistTrending, getAnilistSearch, getAnilistAnime };
+export { getAnilistTrending, getAnilistSearch, getAnilistAnime ,getAnilistUpcoming};

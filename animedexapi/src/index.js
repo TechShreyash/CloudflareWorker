@@ -11,7 +11,7 @@ import {
 import {
     getAnilistTrending,
     getAnilistSearch,
-    getAnilistAnime,
+    getAnilistAnime,getAnilistUpcoming
 } from "./anilist";
 
 let CACHE = {};
@@ -20,6 +20,8 @@ let ANIME_CACHE = {};
 let SEARCH_CACHE = {};
 let REC_CACHE = {};
 let RECENT_CACHE = {};
+let GP_CACHE={}
+let AT_CACHE={}
 
 export default {
     async fetch(request, env, ctx) {
@@ -247,10 +249,25 @@ export default {
                         headers: { "Access-Control-Allow-Origin": "*" },
                     });
                 }
+            }else if (url.includes("/upcoming/")) {
+            let page = url.split("/upcoming/")[1];
+
+            if( AT_CACHE[page] != null) {
+                const t1 = Math.floor(Date.now() / 1000);
+                const t2 = AT_CACHE[`time_${page}`];
+                if (t1 - t2 < 60 * 60) {
+                    const json = JSON.stringify({
+                        results: AT_CACHE[page],
+                    });
+                    return new Response(json, {
+                        headers: { "Access-Control-Allow-Origin": "*" },
+                    });
+                }
             }
 
-            let data = await getPopularAnime(page,20);
-            GP_CACHE[page] = data;
+            let data = await getAnilistUpcoming(page);
+            data=data['results']
+            AT_CACHE[page] = data;
             
             const json = JSON.stringify({ results: data });
 
