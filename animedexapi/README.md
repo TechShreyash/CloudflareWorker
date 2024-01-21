@@ -4,6 +4,8 @@
 - Gogoanime scrapper
 - Anilist scrapper
 
+Documentation : https://api.anime-dex.workers.dev
+
 ## Deploy
 - Install Wrangler CLI : https://developers.cloudflare.com/workers/wrangler/install-and-update/
 
