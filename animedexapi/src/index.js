@@ -11,7 +11,8 @@ import {
 import {
     getAnilistTrending,
     getAnilistSearch,
-    getAnilistAnime,getAnilistUpcoming
+    getAnilistAnime,
+    getAnilistUpcoming,
 } from "./anilist";
 
 let CACHE = {};
@@ -20,8 +21,8 @@ let ANIME_CACHE = {};
 let SEARCH_CACHE = {};
 let REC_CACHE = {};
 let RECENT_CACHE = {};
-let GP_CACHE={}
-let AT_CACHE={}
+let GP_CACHE = {};
+let AT_CACHE = {};
 
 export default {
     async fetch(request, env, ctx) {
@@ -235,7 +236,7 @@ export default {
             return new Response(json, {
                 headers: { "Access-Control-Allow-Origin": "*" },
             });
-        }else if (url.includes("/gogoPopular/")) {
+        } else if (url.includes("/gogoPopular/")) {
             let page = url.split("/gogoPopular/")[1];
 
             if (GP_CACHE[page] != null) {
@@ -250,10 +251,10 @@ export default {
                     });
                 }
             }
-            
-            let data = await getPopularAnime(page,20);
+
+            let data = await getPopularAnime(page, 20);
             GP_CACHE[page] = data;
-            
+
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
@@ -262,7 +263,7 @@ export default {
         } else if (url.includes("/upcoming/")) {
             let page = url.split("/upcoming/")[1];
 
-            if( AT_CACHE[page] != null) {
+            if (AT_CACHE[page] != null) {
                 const t1 = Math.floor(Date.now() / 1000);
                 const t2 = AT_CACHE[`time_${page}`];
                 if (t1 - t2 < 60 * 60) {
@@ -276,9 +277,9 @@ export default {
             }
 
             let data = await getAnilistUpcoming(page);
-            data=data['results'];
+            data = data["results"];
             AT_CACHE[page] = data;
-            
+
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
@@ -286,22 +287,10 @@ export default {
             });
         }
 
-        const text = `Api Is Up... Support : https://telegram.me/TechZBots_Support 
-        
-Routes :
-        
-/home
-/search/{query}
-/anime/{id}
-/episode/{id}
-/download/{id}
-/recent/{page}
-/recommendations/{id}
-/gogoPopular/{page}
-/upcoming/{page}
-        `;
+        const text =
+            '<!doctype html><html lang=en><meta charset=UTF-8><meta content="width=device-width,initial-scale=1"name=viewport><title>AnimeDex API</title><style>body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:0;background-color:#f8f9fa;color:#495057;line-height:1.6}header{background-color:#343a40;color:#fff;text-align:center;padding:1.5em 0;margin-bottom:1em}h1{margin-bottom:.5em;font-size:2em;color:#17a2b8}p{color:#6c757d;margin-bottom:1.5em}code{background-color:#f3f4f7;padding:.2em .4em;border-radius:4px;font-family:"Courier New",Courier,monospace;color:#495057}.container{margin:1em;padding:1em;background-color:#fff;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.1)}li,ul{list-style:none;padding:0;margin:0}li{margin-bottom:.5em}li code{background-color:#e5e7eb;color:#495057}a{color:#17a2b8;text-decoration:none}a:hover{text-decoration:underline}footer{background-color:#343a40;color:#fff;padding:1em 0;text-align:center}.sample-request{margin-top:1em}.toggle-response{cursor:pointer;color:#17a2b8;text-decoration:underline}.sample-response{display:none;margin-top:1em}pre{background-color:#f3f4f7;padding:1em;border-radius:4px;overflow-x:auto}</style><header><h1>API Dashboard</h1><p>The AnimeDex API provides access to a wide range of anime-related data.<p class=support>For support, visit our <a href=https://telegram.me/TechZBots_Support target=_blank>Telegram Support Channel</a>.</header><div class=container><h2>API Description:</h2><p>The AnimeDex API allows you to access various anime-related data, including search, anime details, episodes, downloads, recent releases, recommendations, popular anime, and upcoming releases. Data is scraped from gogoanime and anilist.</div><div class=container><h2>Routes:</h2><ul><li><code>/home</code> - Get trending anime from Anilist and popular anime from GogoAnime<li><code>/search/{query}</code> - Search for anime by name (query = anime name)<li><code>/anime/{id}</code> - Get details of a specific anime (id = gogoanime anime id)<li><code>/episode/{id}</code> - Get episode stream urls (id = gogoanime episode id)<li><code>/download/{id}</code> - Get episode download urls (id = gogoanime episode id)<li><code>/recent/{page}</code> - Get recent animes from gogoanime (page = 1,2,3...)<li><code>/recommendations/{query}</code> - Get recommendations of anime from anilist (id = anime name)<li><code>/gogoPopular/{page}</code> - Get popular animes from gogoanime (page = 1,2,3...)<li><code>/upcoming/{page}</code> - Get upcoming animes from anilist (page = 1,2,3...)</ul></div><div class=container><h2>Support and Contact:</h2><p>For support and questions, visit our <a href=https://telegram.me/TechZBots_Support target=_blank>Telegram Support Channel </a>.</div><footer><p>© 2024 Anime Dex API. All rights reserved.</footer>';
         return new Response(text, {
-            headers: { "content-type": "text/plain" },
+            headers: { "content-type": "text/html" },
         });
     },
 };
