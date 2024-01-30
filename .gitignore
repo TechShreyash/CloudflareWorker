@@ -1,2 +1,5 @@
 node_modules
 animedexapi/docs.html
+animedexapi/updater.py
+animedexapi/wrangler.toml
+animedexapi/wrangler_save.txt

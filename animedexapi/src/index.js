@@ -14,6 +14,7 @@ import {
     getAnilistAnime,
     getAnilistUpcoming,
 } from "./anilist";
+import { SaveError } from "./errorHandler";
 
 let CACHE = {};
 let HOME_CACHE = {};
@@ -23,6 +24,7 @@ let REC_CACHE = {};
 let RECENT_CACHE = {};
 let GP_CACHE = {};
 let AT_CACHE = {};
+
 
 export default {
     async fetch(request, env, ctx) {
@@ -85,11 +87,13 @@ export default {
             } catch (err) {
                 anilistTrending = [];
                 console.log(err);
+                await SaveError(err)
             }
             try {
                 gogoPopular = await getPopularAnime();
             } catch (err) {
                 gogoPopular = [];
+                await SaveError(err)
             }
             const data = { anilistTrending, gogoPopular };
             HOME_CACHE["data"] = data;
