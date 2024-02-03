@@ -25,7 +25,6 @@ let RECENT_CACHE = {};
 let GP_CACHE = {};
 let AT_CACHE = {};
 
-
 export default {
     async fetch(request, env, ctx) {
         const url = request.url;
@@ -53,11 +52,16 @@ export default {
                         results: SEARCH_CACHE[query + page.toString()],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
             const data = await getSearch(query, page);
+
+            if (data.length == 0) {
+                throw new Error("Not found");
+            }
+
             SEARCH_CACHE[query + page.toString()] = data;
             SEARCH_CACHE[`time_${query + page.toString()}`] = Math.floor(
                 Date.now() / 1000
@@ -65,7 +69,7 @@ export default {
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/home")) {
             if (HOME_CACHE["data"] != null) {
@@ -76,7 +80,7 @@ export default {
                         results: HOME_CACHE["data"],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
@@ -87,21 +91,24 @@ export default {
             } catch (err) {
                 anilistTrending = [];
                 console.log(err);
-                await SaveError(err)
+                await SaveError(err);
             }
             try {
                 gogoPopular = await getPopularAnime();
             } catch (err) {
                 gogoPopular = [];
-                await SaveError(err)
+                await SaveError(err);
             }
             const data = { anilistTrending, gogoPopular };
-            HOME_CACHE["data"] = data;
-            HOME_CACHE["time"] = Math.floor(Date.now() / 1000);
+
+            if ((anilistTrending.length != 0) & (gogoPopular.length != 0)) {
+                HOME_CACHE["data"] = data;
+                HOME_CACHE["time"] = Math.floor(Date.now() / 1000);
+            }
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/anime/")) {
             let anime = url.split("/anime/")[1];
@@ -114,7 +121,7 @@ export default {
                         results: ANIME_CACHE[anime],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
@@ -149,7 +156,7 @@ export default {
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/episode/")) {
             const id = url.split("/episode/")[1];
@@ -157,7 +164,7 @@ export default {
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/download/")) {
             const query = url.split("/download/")[1];
@@ -187,7 +194,7 @@ export default {
 
             const json = JSON.stringify({ results: data });
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/recent/")) {
             const page = url.split("/recent/")[1];
@@ -200,45 +207,51 @@ export default {
                         results: RECENT_CACHE[page],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
 
             const data = await getRecentAnime(page);
-            const json = JSON.stringify({ results: data });
 
+            if (data.length == 0) {
+                throw new Error("Not found");
+            }
+
+            const json = JSON.stringify({ results: data });
             RECENT_CACHE[page] = data;
             RECENT_CACHE[`time_${page}`] = Math.floor(Date.now() / 1000);
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/recommendations/")) {
-            let anime = url.split("/recommendations/")[1];
+            let query = url.split("/recommendations/")[1];
 
-            if (REC_CACHE[anime] != null) {
-                const t1 = Math.floor(Date.now() / 1000);
-                const t2 = REC_CACHE[`time_${anime}`];
-                if (t1 - t2 < 60 * 60) {
-                    const json = JSON.stringify({
-                        results: REC_CACHE[anime],
-                    });
-                    return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
-                    });
-                }
+            if (REC_CACHE[query]) {
+                const json = JSON.stringify({
+                    results: REC_CACHE[query],
+                });
+                return new Response('cahe', {
+                    headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
+                });
+
             }
 
-            const search = await getAnilistSearch(anime);
-            anime = search["results"][0].id;
+            const search = await getAnilistSearch(query);
+            const anime = search["results"][0].id;
             let data = await getAnilistAnime(anime);
             data = data["recommendations"];
-            REC_CACHE[anime] = data;
+
+            if (data.length == 0) {
+                throw new Error("Not found");
+            }
+
+            REC_CACHE[query] = data;
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/gogoPopular/")) {
             let page = url.split("/gogoPopular/")[1];
@@ -251,7 +264,7 @@ export default {
                         results: GP_CACHE[page],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
@@ -262,7 +275,7 @@ export default {
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         } else if (url.includes("/upcoming/")) {
             let page = url.split("/upcoming/")[1];
@@ -275,7 +288,7 @@ export default {
                         results: AT_CACHE[page],
                     });
                     return new Response(json, {
-                        headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                        headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                     });
                 }
             }
@@ -287,7 +300,7 @@ export default {
             const json = JSON.stringify({ results: data });
 
             return new Response(json, {
-                headers: { "Access-Control-Allow-Origin": "*", 'Vary': 'Origin' },
+                headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
             });
         }
 
@@ -295,7 +308,11 @@ export default {
             '<!doctype html><html lang=en><meta charset=UTF-8><meta content="width=device-width,initial-scale=1"name=viewport><title>AnimeDex API</title><style>body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:0;background-color:#f8f9fa;color:#495057;line-height:1.6}header{background-color:#343a40;color:#fff;text-align:center;padding:1.5em 0;margin-bottom:1em}h1{margin-bottom:.5em;font-size:2em;color:#17a2b8}p{color:#6c757d;margin-bottom:1.5em}code{background-color:#f3f4f7;padding:.2em .4em;border-radius:4px;font-family:"Courier New",Courier,monospace;color:#495057}.container{margin:1em;padding:1em;background-color:#fff;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,.1)}li,ul{list-style:none;padding:0;margin:0}li{margin-bottom:.5em}li code{background-color:#e5e7eb;color:#495057}a{color:#17a2b8;text-decoration:none}a:hover{text-decoration:underline}footer{background-color:#343a40;color:#fff;padding:1em 0;text-align:center}.sample-request{margin-top:1em}.toggle-response{cursor:pointer;color:#17a2b8;text-decoration:underline}.sample-response{display:none;margin-top:1em}pre{background-color:#f3f4f7;padding:1em;border-radius:4px;overflow-x:auto}</style><header><h1>API Dashboard</h1><p>The AnimeDex API provides access to a wide range of anime-related data.<p class=support>For support, visit our <a href=https://telegram.me/TechZBots_Support target=_blank>Telegram Support Channel</a>.</header><div class=container><h2>API Description:</h2><p>The AnimeDex API allows you to access various anime-related data, including search, anime details, episodes, downloads, recent releases, recommendations, popular anime, and upcoming releases. Data is scraped from gogoanime and anilist.</div><div class=container><h2>Routes:</h2><ul><li><code>/home</code> - Get trending anime from Anilist and popular anime from GogoAnime<li><code>/search/{query}</code> - Search for anime by name (query = anime name)<li><code>/anime/{id}</code> - Get details of a specific anime (id = gogoanime anime id)<li><code>/episode/{id}</code> - Get episode stream urls (id = gogoanime episode id)<li><code>/download/{id}</code> - Get episode download urls (id = gogoanime episode id)<li><code>/recent/{page}</code> - Get recent animes from gogoanime (page = 1,2,3...)<li><code>/recommendations/{query}</code> - Get recommendations of anime from anilist (id = anime name)<li><code>/gogoPopular/{page}</code> - Get popular animes from gogoanime (page = 1,2,3...)<li><code>/upcoming/{page}</code> - Get upcoming animes from anilist (page = 1,2,3...)</ul></div><div class=container><h2>Support and Contact:</h2><p>For support and questions, visit our <a href=https://telegram.me/TechZBots_Support target=_blank>Telegram Support Channel </a>.</div><footer><p>© 2024 Anime Dex API. All rights reserved.</footer>';
 
         return new Response(text, {
-            headers: { "content-type": "text/html", 'Access-Control-Allow-Origin': "*", 'Vary': 'Origin' },
+            headers: {
+                "content-type": "text/html",
+                "Access-Control-Allow-Origin": "*",
+                Vary: "Origin",
+            },
         });
     },
 };
