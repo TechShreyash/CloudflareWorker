@@ -90,17 +90,17 @@ export default {
                 anilistTrending = (await getAnilistTrending())["results"];
             } catch (err) {
                 anilistTrending = [];
-                console.log(err);
-                await SaveError(err);
             }
             try {
                 gogoPopular = await getPopularAnime();
             } catch (err) {
                 gogoPopular = [];
-                await SaveError(err);
             }
             const data = { anilistTrending, gogoPopular };
 
+            if ((anilistTrending.length == 0) & (gogoPopular.length == 0)) {
+                throw new Error("Something went wrong!");
+            }
             if ((anilistTrending.length != 0) & (gogoPopular.length != 0)) {
                 HOME_CACHE["data"] = data;
                 HOME_CACHE["time"] = Math.floor(Date.now() / 1000);
