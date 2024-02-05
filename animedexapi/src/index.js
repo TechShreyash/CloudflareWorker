@@ -232,7 +232,7 @@ export default {
                 const json = JSON.stringify({
                     results: REC_CACHE[query],
                 });
-                return new Response('cahe', {
+                return new Response(json, {
                     headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
                 });
 
