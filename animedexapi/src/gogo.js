@@ -60,7 +60,7 @@ async function getAnime(id) {
     const animeid = $("input#movie_id").attr("value");
     response = await fetch(
         "https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=10000000000000&id=" +
-            animeid
+        animeid
     );
     html = await response.text();
     $ = cheerio.load(html);
@@ -102,8 +102,8 @@ async function getRecentAnime(page = 1) {
     return recentAnime;
 }
 
-async function getPopularAnime(page=1,max=10) {
-    const response = await fetch(BaseURL + "/popular.html?page="+page.toString());
+async function getPopularAnime(page = 1, max = 10) {
+    const response = await fetch(BaseURL + "/popular.html?page=" + page.toString());
     let html = await response.text();
     let $ = cheerio.load(html);
     const popularAnime = [];
@@ -139,6 +139,11 @@ async function getEpisode(id) {
             servers[elem.attr("class")] = elem.find("a").attr("data-video");
         }
     });
+
+    let m3u8;
+    try { m3u8 = await getM3U8(iframe); }
+    catch (e) { m3u8 = null; }
+
     const ScrapedAnime = {
         name:
             $("div.anime_video_body h1")
@@ -146,7 +151,7 @@ async function getEpisode(id) {
                 .replace("at gogoanime", "")
                 .trim() || null,
         episodes: episodeCount,
-        stream: await getM3U8(iframe),
+        stream: m3u8,
         servers,
     };
 
