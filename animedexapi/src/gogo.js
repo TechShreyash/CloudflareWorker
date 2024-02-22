@@ -50,7 +50,7 @@ async function getAnime(id) {
             .replace(":", "")
             .trim()
             .replace(/ /g, "_");
-        if (/plot_summary|released|other_name/g.test(keyName))
+        if (/plot_summary|released/g.test(keyName))
             animeData[keyName] = $(elem)
                 .html()
                 .replace(`<span>${$x("span").text()}</span>`, "");
