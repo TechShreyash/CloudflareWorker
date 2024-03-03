@@ -61,7 +61,7 @@ async function getAnime(id) {
 
     const animeid = $("input#movie_id").attr("value");
     response = await fetch(
-        "https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=10000000000000&id=" +
+        "https://py-proxy.vercel.app/getep/" +
         animeid
     );
     html = await response.text();
@@ -143,8 +143,9 @@ async function getEpisode(id) {
     });
 
     let m3u8;
+    console.log(iframe);
     try { m3u8 = await getM3U8(iframe); }
-    catch (e) { m3u8 = null; }
+    catch (e) { console.log(e); m3u8 = null; }
 
     const ScrapedAnime = {
         name:
@@ -164,7 +165,7 @@ async function getM3U8(iframe_url) {
     let sources = [];
     let sources_bk = [];
     let serverUrl = new URL(iframe_url);
-
+    console.log(serverUrl.href);
     const goGoServerPage = await fetch(serverUrl.href, {
         headers: { "User-Agent": USER_AGENT },
     });
@@ -188,6 +189,7 @@ async function getM3U8(iframe_url) {
     const res = decryptEncryptAjaxResponse(await fetchRes.json());
     res.source.forEach((source) => sources.push(source));
     res.source_bk.forEach((source) => sources_bk.push(source));
+    console.log(res)
 
     return {
         Referer: serverUrl.href,

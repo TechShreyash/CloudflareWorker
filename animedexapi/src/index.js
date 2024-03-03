@@ -156,8 +156,10 @@ export default {
                     const t1 = Math.floor(Date.now() / 1000);
                     const t2 = ANIME_CACHE[`time_${anime}`];
                     if (t1 - t2 < 60 * 60) {
+                        const data = ANIME_CACHE[anime];
+                        data['from_cache'] = true
                         const json = JSON.stringify({
-                            results: ANIME_CACHE[anime],
+                            results: data,
                         });
                         return new Response(json, {
                             headers: { "Access-Control-Allow-Origin": "*", Vary: "Origin" },
@@ -190,8 +192,10 @@ export default {
                 if (data == {}) {
                     throw new Error("Not found");
                 }
-                ANIME_CACHE[anime] = data;
-                ANIME_CACHE[`time_${anime}`] = Math.floor(Date.now() / 1000);
+                if (data.episodes.length != 0) {
+                    ANIME_CACHE[anime] = data;
+                    ANIME_CACHE[`time_${anime}`] = Math.floor(Date.now() / 1000);
+                }
                 const json = JSON.stringify({ results: data });
 
                 return new Response(json, {
