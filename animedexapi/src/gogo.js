@@ -61,7 +61,7 @@ async function getAnime(id) {
 
     const animeid = $("input#movie_id").attr("value");
     response = await fetch(
-        "https://py-proxy.vercel.app/getep/" +
+        "https://ajax.gogocdn.net/ajax/load-list-episode?ep_start=0&ep_end=1000000&id=" +
         animeid
     );
     html = await response.text();
