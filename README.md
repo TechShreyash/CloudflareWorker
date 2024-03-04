@@ -2,7 +2,7 @@
 
 Below Codes For [AnimeDexLite](https://github.com/TechShreyash/AnimeDexLite)
 
-- [AnimeDexApi](https://github.com/TechShreyash/CloudflareWorker/tree/main/animedexapi) - Api To Get Anime Data From GogoAnime And Anilist
+- [AnimeDexApi](https://github.com/TechShreyash/AnimeDexApi) - Api To Get Anime Data From GogoAnime And Anilist
 - [AnimeDexProxy](https://github.com/TechShreyash/CloudflareWorker/tree/main/animedexproxy) - Proxy for bypassing cors errors while using api
 
 

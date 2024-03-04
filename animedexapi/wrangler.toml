@@ -1,6 +1,0 @@
-name = "api3"
-main = "src/index.js"
-compatibility_date = "2023-10-10"
-type = "javascript"
-workers_dev = true
-node_compat = true
